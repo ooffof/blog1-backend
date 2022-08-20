@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.cuizilin.website.mapper.TagMapper">
+    <resultMap id="tagResultMap" type="Tag" autoMapping="true">
+        <id column="tag_id" property="tagId"></id>
+        <collection property="articleList" column="tag_id" select="top.cuizilin.website.mapper.ArticleMapper.searchAllByTagId"></collection>
+    </resultMap>
+    <select id="searchAllByArticleId" resultType="Tag">
+       select * from t_article_tag right join t_tag on t_article_tag.tag_id = t_tag.tag_id where article_id = #{articleId}
+    </select>
+</mapper>

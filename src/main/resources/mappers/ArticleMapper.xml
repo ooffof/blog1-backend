@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.cuizilin.website.mapper.ArticleMapper">
+    <resultMap id="articleResultMap" type="Article" autoMapping="true">
+        <id column="article_id" property="articleId"></id>
+        <association column="type_id" property="type" select="top.cuizilin.website.mapper.TypeMapper.searchOneByTypeId"></association>
+        <association column="user_id" property="user" select="top.cuizilin.website.mapper.UserMapper.searchOneByUserId"></association>
+        <collection property="tagList" column="article_id" select="top.cuizilin.website.mapper.TagMapper.searchAllByArticleId"></collection>
+    </resultMap>
+    <select id="searchOneByTypeId" resultType="Article">
+        select * from t_article where type_id = #{typeId}
+    </select>
+    <select id="searchAllByTagId" resultType="Article">
+        select * from t_article_tag where tag_id = #{tagId}
+    </select>
+    <insert id="saveTagAndArticle">
+        insert into t_article_tag(article_id, tag_Id) values (#{articleId}, #{tagId})
+    </insert>
+
+    <select id="searchAllByTagList" parameterType="collection" resultMap="articleResultMap">
+        select * from t_article left join t_article_tag on t_article.article_id = t_article_tag.article_id
+        <where>
+            <foreach item="item" index="index" collection="tagIds"
+                     open="t_article_tag.tag_id in (" separator="," close=")" nullable="true">
+                #{item}
+            </foreach>
+        </where>
+        <if test="orderContent == 0">
+            order by t_article.create_time
+        </if>
+        <if test="orderContent == 1">
+            order by t_article.view_no
+        </if>
+        <if test="orderContent == 2">
+            order by t_article.good_no
+        </if>
+        <if test="orderType">
+            desc
+        </if>
+        <if test="!orderType">
+            asc
+        </if>
+    </select>
+
+    <delete id="deleteByArticleId" >
+       delete from t_article_tag where article_id = #{articleId}
+    </delete>
+
+    <insert id="insertNewArticleTags">
+       insert into t_article_tag(article_id, tag_id) values
+        <foreach collection="tagIds" separator="," item="item">
+            (#{articleId}, #{item})
+        </foreach>
+    </insert>
+
+</mapper>
